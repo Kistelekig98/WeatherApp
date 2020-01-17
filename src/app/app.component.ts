@@ -2,6 +2,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { HttpClient } from "@angular/common/http";
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, of } from "rxjs";
+import { map } from 'rxjs/operators';
 
 interface Geonames {
   geonames: Array<Geoname>;
@@ -49,7 +50,7 @@ export class AppComponent implements OnDestroy {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
-  }
+  } 
 
   findMe() {
     const status = document.querySelector('#status');
@@ -63,6 +64,9 @@ export class AppComponent implements OnDestroy {
 
       status.textContent = '';
       mapLink.textContent = `Szélesség: ${latitude} °, Hosszúság: ${longitude} °`;
+
+      this.latitude = latitude;
+      this.longitude = longitude;
     }
 
     function error() {
@@ -74,12 +78,26 @@ export class AppComponent implements OnDestroy {
     } else {
       status.textContent = 'Locating…';
       navigator.geolocation.getCurrentPosition(success, error);
+      
+      
+      //this.getTemps(this.latitude, this.longitude);
     }
 
-    this.geonames$ = this.http
-      .get<Geonames>("http://api.geonames.org/findNearbyPlaceNameJSON?lat=47.5004628&lng=19.082869&username=eggdice&radius=10");
+    // this.geonames$ = this.http
+    //   .get<Geonames>("http://api.geonames.org/findNearbyPlaceNameJSON?lat=".concat(latitude, "&lng=", longitude, "&username=eggdice&radius=10"))
+    //   .pipe(map(res => {
+    //     res.geonames.forEach(geoname => geoname.temp = "10");
+    //     return res;
+    //   }));
+  }
 
-    
+  kkk() {
+    alert(this.latitude);
+  }
+
+  getTemps (latitude: string, longitude: string) {
+    alert("http://api.geonames.org/findNearbyPlaceNameJSON?lat=".concat(
+      latitude, "&lng=", longitude, "&username=eggdice&radius=10"));
   }
 
   ngOnDestroy(): void {
