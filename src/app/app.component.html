@@ -12,9 +12,28 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-      <button mat-raised-button color="primary" id="find-me" (click)="findMe()">Show my location</button>
-      <span id="status"></span>
-      <a id="map-link" target="_blank"></a>
+      <div>
+        <button mat-raised-button color="primary" id="find-me" (click)="findMe()">Mutasd a helyzetem!</button>
+        <span id="status"></span>
+        <a id="map-link" target="_blank"></a>
+      </div>
+
+      <div class="table" *ngIf="(geonames$ | async).geonames as geonames else noData">
+        <h3>Közeli helyek:</h3>
+        <div class="row header">
+          <div class="cell">Hely</div>
+          <div class="cell">Szélesség</div>
+          <div class="cell">Hosszúság</div>
+          <div class="cell">Hőmérséklet</div>
+        </div>
+        <div *ngFor="let geoname of geonames" class="row">
+          <div class="cell">{{geoname.name}}</div>
+          <div class="cell">{{geoname.lat}}</div>
+          <div class="cell">{{geoname.lng}}</div>
+          <div class="cell">{{geoname.temp}}</div>
+        </div> 
+      </div>
+      <ng-template #noData>No Data Available</ng-template>
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>

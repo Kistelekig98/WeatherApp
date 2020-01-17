@@ -1,8 +1,34 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Config } from './config/config.service';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpClient } from "@angular/common/http";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, of } from "rxjs";
+
+interface Geonames {
+  geonames: Array<Geoname>;
+}
+
+interface Geoname {
+  adminCode1: string;
+  lng: string;
+  distance: string;
+  geonameId: number;
+  toponymName: string;
+  countryId: string;
+  fcl: string;
+  population: number;
+  countryCode: string;
+  name: string;
+  fclName: string;
+  adminCodes1: {
+    ISO3166_2: string;
+  };
+  countryName: string;
+  fcodeName: string;
+  adminName1: string;
+  lat: string;
+  fcode: string;
+  temp: string;
+}
 
 @Component({
   selector: 'app-root',
@@ -11,14 +37,15 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 })
 
 export class AppComponent implements OnDestroy {
-  title = 'WeatherApp';
   mobileQuery: MediaQueryList;
+  title = 'WeatherApp';
+  geonames$: Observable<Geonames>;
   latitude: string;
   longitude: string;
   
   private _mobileQueryListener: () => void;
 
-  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher) {
+  constructor(private http: HttpClient, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -35,7 +62,7 @@ export class AppComponent implements OnDestroy {
       const longitude = position.coords.longitude;
 
       status.textContent = '';
-      mapLink.textContent = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
+      mapLink.textContent = `Szélesség: ${latitude} °, Hosszúság: ${longitude} °`;
     }
 
     function error() {
@@ -48,11 +75,11 @@ export class AppComponent implements OnDestroy {
       status.textContent = 'Locating…';
       navigator.geolocation.getCurrentPosition(success, error);
     }
-  }
 
-  getConfigResponse(): Observable<HttpResponse<Config>> {
-    return this.http.get<Config>(
-      this.configUrl, { observe: 'response' });
+    this.geonames$ = this.http
+      .get<Geonames>("http://api.geonames.org/findNearbyPlaceNameJSON?lat=47.5004628&lng=19.082869&username=eggdice&radius=10");
+
+    
   }
 
   ngOnDestroy(): void {
